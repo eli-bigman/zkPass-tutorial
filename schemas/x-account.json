@@ -1,0 +1,30 @@
+{
+  "issuer": "X",
+  "desc": "One of the world's largest social media websites and source of news",
+  "website": "https://x.com",
+  "APIs": [
+    {
+      "host": "api.x.com",
+      "intercept": {
+        "url": "1.1/account/settings.json",
+        "method": "GET"
+      },
+      "assert": [
+        {
+          "key": "always_use_https",
+          "value": "true",
+          "operation": "="
+        }
+      ],
+      "nullifier": "screen_name"
+    }
+  ],
+  "HRCondition": [
+    "X Account Owner"
+  ],
+  "tips": {
+    "message": "When you successfully log in, please click the 'Start' button to initiate the verification process."
+  },
+  "category": "Social",
+  "id": "0x8c6f751f3ed54b77baa7ff35b6356560"
+}
