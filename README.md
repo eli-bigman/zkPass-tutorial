@@ -1,5 +1,5 @@
 # zkPass-tutorial-examples
-Official samples for integrating with zkPass protocol.
+Example repo for integrating with zkPass protocol.
 
 For more information, see [here](https://zkpass.gitbook.io/zkpass).
 

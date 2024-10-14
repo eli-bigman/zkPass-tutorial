@@ -14,6 +14,7 @@ struct Attestation {
 
 contract SampleAttestation is ProofVerifier {
     mapping(bytes32 uid => Attestation) private attestations;
+    event AttestationCreated(bytes32 indexed uid, address indexed receipient, bytes32 indexed schemaId, bytes32 uHash, bytes32 publicFieldsHash);
 
     constructor() ProofVerifier() {}
 
@@ -44,6 +45,7 @@ contract SampleAttestation is ProofVerifier {
         attestation.uid = uid;
 
         attestations[uid] = attestation;
+        emit AttestationCreated(uid, attestation.recipient, attestation.schema, attestation.uHash, attestation.publicFieldsHash);
     }
 
     function getAttestation(bytes32 uid) public view returns (Attestation memory) {

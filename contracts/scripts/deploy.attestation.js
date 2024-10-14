@@ -5,7 +5,10 @@ async function main() {
 
   const sa = await ethers.deployContract("SampleAttestation");
 
-  console.log("SampleAttestation address:", await sa.getAddress())
+  const address = await sa.getAddress();
+
+  console.log("SampleAttestation deployed to address:", address);
+
 }
 
 main()
