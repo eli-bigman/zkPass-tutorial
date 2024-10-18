@@ -1,0 +1,30 @@
+{
+    "issuer": "Sportybet Account Holder",
+    "desc": "An online sports betting platform offering the best odds, a fast and lite app, instant deposits and withdrawals, and exciting bonuses. Bet on a wide range of sports and enjoy live betting experiences.",
+    "website": "https://www.sportybet.com/gh/my_accounts/my_account_info",
+    "APIs": [
+      {
+        "host": "www.sportybet.com",
+        "intercept": {
+          "url": "https://www.sportybet.com/api/gh/patron/account/info",
+          "method": "GET"
+        },
+        "assert": [
+          {
+            "key": "data|email",
+            "value": "",
+            "operation": "!="
+          }
+        ],
+        "nullifier": "data|email"
+      }
+    ],
+    "HRCondition": [
+      "Sportybet Account Owner"
+    ],
+    "tips": {
+      "message": "When you successfully log in, please click the 'Start' button to initiate the verification process."
+    },
+    "category": "Financial",
+    "id": "0x1b47499ee4e440008d214e12244ad605"
+  }

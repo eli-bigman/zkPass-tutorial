@@ -1,0 +1,30 @@
+{
+    "issuer": "Sportybet",
+    "desc": "An online sports betting platform offering the best odds, a fast and lite app, instant deposits and withdrawals, and exciting bonuses. Bet on a wide range of sports and enjoy live betting experiences.",
+    "website": "https://www.sportybet.com/gh",
+    "APIs": [
+      {
+        "host": "www.sportybet.com",
+        "intercept": {
+          "url": "https://www.sportybet.com/api/gh/pocket/v1/wallet/assetsInfo",
+          "method": "GET"
+        },
+        "assert": [
+          {
+            "key": "data|balance",
+            "value": "10000",
+            "operation": "<"
+          }
+        ],
+        "nullifier": "data|balance"
+      }
+    ],
+    "HRCondition": [
+      "Sportybet balance is greater than 1 GH cedi"
+    ],
+    "tips": {
+      "message": "When you successfully log in, please click the 'Start' button to initiate the verification process."
+    },
+    "category": "Financial",
+    "id": "0xe6d8871ee612473d98b89eef40d954e8"
+  }
