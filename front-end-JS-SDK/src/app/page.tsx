@@ -1,77 +1,37 @@
 "use client";
 import { useState } from "react";
-import styles from "./page.module.css";
 import TransgateConnect from "@zkpass/transgate-js-sdk";
-import JSONPretty from "react-json-pretty";
 import { ethers } from "ethers";
 import AttestationABI from "./AttestationABI.json";
 import { Res } from "./lib/types";
 import verifyEvmBasedResult from "./verifyEvmBasedResult";
+import Image from "next/image";
 
-const FormGrid = ({ children }: { children: React.ReactNode }) => (
-  <div className="grid gap-9 grid-cols-2 max-w-4xl mx-auto my-12">{children}</div>
-);
-
-const FormContainer = ({ children }: { children: React.ReactNode }) => (
-  <div className="flex flex-col items-center w-full">{children}</div>
-);
-
-const FormItem = ({ children }: { children: React.ReactNode }) => (
-  <div className="flex flex-col justify-start items-start w-full mb-4">{children}</div>
-);
-
-const Label = ({ children }: { children: React.ReactNode }) => (
-  <div className="text-right text-lg font-bold text-white mb-2">{children}</div>
-);
-
-const Input = (props: React.InputHTMLAttributes<HTMLInputElement>) => (
-  <input
-    {...props}
-    className="block bg-white rounded h-9 leading-9 w-full px-4 outline-none text-black"
-  />
-);
-
-const Button = ({ children, disabled, onClick }: { children: React.ReactNode, disabled?: boolean, onClick?: () => void }) => (
-  <button
-    onClick={onClick}
-    disabled={disabled}
-    className={`relative block min-w-[120px] h-9 leading-9 px-4 text-center border-none rounded text-sm bg-[#c5ff4a] text-black ${disabled ? "cursor-not-allowed" : "cursor-pointer"} active:border active:border-gray-400 active:text-gray-700`}
-  >
-    {children}
-  </button>
-);
-
-const RightContainer = ({ children }: { children: React.ReactNode }) => (
-  <div className="col-span-1">{children}</div>
-);
-
-const Title = ({ children }: { children: React.ReactNode }) => (
-  <h2 className="text-white text-center">{children}</h2>
-);
-
-declare global {
-  interface Window {
-    ethereum: any;
-  }
+interface ValidationCardProps {
+  schemaId: string;
+  validationName: string;
+  appid: string;
 }
 
-export default function Home() {
-  const [appid1, setAppid1] = useState<string>(
-    "fb7dc08a-3b93-47c0-a553-5de29be89eb6"
-  );
-  const [value1, setValue1] = useState<string>(
-    "1b47499ee4e440008d214e12244ad605"
-  );
-  const [appid2, setAppid2] = useState<string>(
-    "fb7dc08a-3b93-47c0-a553-5de29be89eb6"
-  );
-  const [value2, setValue2] = useState<string>(
-    "e6d8871ee612473d98b89eef40d954e8"
-  );
+const ValidationCard: React.FC<ValidationCardProps> = ({ schemaId, validationName, appid }) => {
   const [result, setResult] = useState<any>();
   const [attestAtationTx, setAttestAtationTx] = useState<string>();
+  const [status, setStatus] = useState<{ success: boolean, message?: string, code?: number }>({ success: false });
 
-  const start = async (schemaId: string, appid: string) => {
+  const isErrorWithMessage = (error: unknown): error is { message: string } => {
+    return typeof error === 'object' && error !== null && 'message' in error;
+  };
+
+  const isValidJSON = (str: string) => {
+    try {
+      JSON.parse(str);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  };
+
+  const start = async () => {
     try {
       const connector = new TransgateConnect(appid);
       const isAvailable = await connector.isTransgateAvailable();
@@ -104,7 +64,8 @@ export default function Home() {
       const isVerified = verifyEvmBasedResult(res, schemaId)
 
       if (!isVerified) {
-        return alert("Invalid result");
+        setStatus({ success: false, message: "Invalid result" });
+        return;
       }
 
       const taskId = ethers.hexlify(ethers.toUtf8Bytes(res.taskId));
@@ -123,90 +84,90 @@ export default function Home() {
 
       const t = await contract.attest(chainParams);
       setAttestAtationTx(t.hash);
-      alert("Transaction sent successfully!");
-    } catch (err) {
-      alert(JSON.stringify(err));
-      console.log("error", err);
+      setStatus({ success: true });
+    } catch (err: unknown) {
+      if (isErrorWithMessage(err)) {
+        if (isValidJSON(err.message)) {
+          const errorMessage = JSON.parse(err.message);
+          if (errorMessage.code === 110001) {
+            setStatus({ success: false, code: 110001 });
+          } else {
+            setStatus({ success: false, message: err.message });
+          }
+        } else {
+          setStatus({ success: false, message: err.message });
+        }
+        console.log("error", err);
+      } else {
+        console.log("Unknown error", err);
+      }
     }
   };
 
   return (
-    <main className={styles.main}>
-      <Title>zkPass Transgate Sportify validator</Title>
-      <FormGrid>
-        <FormContainer>
-          <Title>Verify Sportybet Account Owner</Title>
-          <FormItem>
-            <Label>Appid:</Label>
-            <Input
-              value={appid1}
-              onInput={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setAppid1(e.target.value?.trim())
-              }
-            />
-          </FormItem>
-          <FormItem>
-            <Label>Schema Id:</Label>
-            <Input
-              value={value1}
-              onInput={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setValue1(e.target.value?.trim())
-              }
-            />
-          </FormItem>
-          <FormItem>
-            <RightContainer>
-              <Button onClick={() => start(value1, appid1)}>Run</Button>
-            </RightContainer>
-          </FormItem>
-        </FormContainer>
-        <FormContainer>
-          <Title>Owner has more than 1 GHs in Account</Title>
-          <FormItem>
-            <Label>Appid:</Label>
-            <Input
-              value={appid2}
-              onInput={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setAppid2(e.target.value?.trim())
-              }
-            />
-          </FormItem>
-          <FormItem>
-            <Label>Schema Id:</Label>
-            <Input
-              value={value2}
-              onInput={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setValue2(e.target.value?.trim())
-              }
-            />
-          </FormItem>
-          <FormItem>
-            <RightContainer>
-              <Button onClick={() => start(value2, appid2)}>Run</Button>
-            </RightContainer>
-          </FormItem>
-        </FormContainer>
-      </FormGrid>
-      <FormItem>
-        {attestAtationTx && (
-          <>
-            <Label>AttestationTx:</Label>
-            <a href={"https://explorer-holesky.morphl2.io/tx/" + attestAtationTx} target="_blank" rel="noopener noreferrer">
-              {attestAtationTx}
-            </a>
-          </>
-        )}
-        {result && (
-          <>
-            <Label>Result:</Label>
-            <JSONPretty
-              themeClassName="custom-json-pretty"
-              id="json-pretty"
-              data={result}
-            ></JSONPretty>
-          </>
-        )}
-      </FormItem>
+    <div className="bg-black text-white p-4 rounded-lg shadow-md mb-4 border border-gray-700 text-center">
+      <h3 className="text-lg font-bold mb-2">{validationName}</h3>
+      <button onClick={start} className="bg-[#c5ff4a] text-black px-4 py-2 rounded mb-2 mx-auto block">Run</button>
+      
+      {status.success && (
+        <>
+          <Image src="/pass.png" alt="Pass" width={100} height={100} className="mx-auto" />
+          {attestAtationTx && (
+            <div className="break-words">
+              <label className="block text-sm font-bold mb-1">AttestationTx:</label>
+              <a href={"https://explorer-holesky.morphl2.io/tx/" + attestAtationTx} target="_blank" rel="noopener noreferrer" className="text-blue-500 break-words">
+                {attestAtationTx}
+              </a>
+            </div>
+          )}
+        </>
+      )}
+      
+      {status.success === false && (
+        <div>
+          
+          {status.code === 110001 && (
+            <div>Error</div>
+          )}
+          {status.message && (
+            <>
+              <div>{status.message}</div>
+            <Image src="/fail.png" alt="Fail" width={100} height={100} className="mx-auto" />
+          
+            </>
+            )}
+        </div>
+      )}
+      {/* <div className="text-center">
+        <img 
+          src="/fail.png" 
+          alt="Fail" 
+          width={100} 
+          height={100} 
+          className="mx-auto" 
+        />
+        <label className="block text-sm font-bold mb-1">Error</label>
+        <div>The user does not meet the requirements.</div>
+      </div> */}
+    </div>
+  );
+};
+
+export default function Home() {
+  const [appid, setAppid] = useState<string>(
+    "fb7dc08a-3b93-47c0-a553-5de29be89eb6"
+  );
+
+  return (
+    <main className="p-4">
+      <h1 className="text-white text-center mb-8">zkPass Transgate Sportify validator</h1>
+      <div className="grid gap-9 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 max-w-4xl mx-auto">
+        <ValidationCard schemaId="b7724d4fce7d480ca9658730fdc4b8cf" validationName="Has Sportybet Account " appid={appid} />
+        <ValidationCard schemaId="b7724d4fce7d480ca9658730fdc4b8cf" validationName="Sportybet account balance is more than 1 GHs" appid={appid} />
+        <ValidationCard schemaId="99f040afb92349a28991ffed8bd0c146" validationName="Credit Card number added to sportybet" appid={appid} />
+        {/* <ValidationCard schemaId="b5a8ca28820f407abc64af649f44f3e7" validationName="Mobile money number added to sportybet" appid={appid} /> */}
+        <ValidationCard schemaId="8dc601044ea04ce9a8fed4cbc061b11b" validationName="Transacted on SportyBet in the last 7 days" appid={appid} />
+      </div>
     </main>
   );
 }
