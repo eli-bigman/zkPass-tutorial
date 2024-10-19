@@ -9,7 +9,7 @@ import { Res } from "./lib/types";
 import verifyEvmBasedResult from "./verifyEvmBasedResult";
 
 const FormGrid = ({ children }: { children: React.ReactNode }) => (
-  <div className="grid gap-9 grid-cols-1 max-w-2xl mx-auto my-12">{children}</div>
+  <div className="grid gap-9 grid-cols-2 max-w-4xl mx-auto my-12">{children}</div>
 );
 
 const FormContainer = ({ children }: { children: React.ReactNode }) => (
@@ -62,6 +62,12 @@ export default function Home() {
   const [value1, setValue1] = useState<string>(
     "1b47499ee4e440008d214e12244ad605"
   );
+  const [appid2, setAppid2] = useState<string>(
+    "fb7dc08a-3b93-47c0-a553-5de29be89eb6"
+  );
+  const [value2, setValue2] = useState<string>(
+    "e6d8871ee612473d98b89eef40d954e8"
+  );
   const [result, setResult] = useState<any>();
   const [attestAtationTx, setAttestAtationTx] = useState<string>();
 
@@ -91,8 +97,6 @@ export default function Home() {
         AttestationABI,
         signer
       );
-
-
 
       const res = await connector.launch(schemaId, account) as Res ;
       setResult(res);
@@ -128,9 +132,10 @@ export default function Home() {
 
   return (
     <main className={styles.main}>
-      <Title>zkPass Transgate JS-SDK Demo(send to evm chain)</Title>
+      <Title>zkPass Transgate Sportify validator</Title>
       <FormGrid>
         <FormContainer>
+          <Title>Verify Sportybet Account Owner</Title>
           <FormItem>
             <Label>Appid:</Label>
             <Input
@@ -154,28 +159,54 @@ export default function Home() {
               <Button onClick={() => start(value1, appid1)}>Run</Button>
             </RightContainer>
           </FormItem>
+        </FormContainer>
+        <FormContainer>
+          <Title>Owner has more than 1 GHs in Account</Title>
           <FormItem>
-            {attestAtationTx && (
-              <>
-                <Label>AttestationTx:</Label>
-                <a href={"https://explorer-holesky.morphl2.io/tx/" + attestAtationTx} target="_blank" rel="noopener noreferrer">
-                  {attestAtationTx}
-                </a>
-              </>
-            )}
-            {result && (
-              <>
-                <Label>Result:</Label>
-                <JSONPretty
-                  themeClassName="custom-json-pretty"
-                  id="json-pretty"
-                  data={result}
-                ></JSONPretty>
-              </>
-            )}
+            <Label>Appid:</Label>
+            <Input
+              value={appid2}
+              onInput={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setAppid2(e.target.value?.trim())
+              }
+            />
+          </FormItem>
+          <FormItem>
+            <Label>Schema Id:</Label>
+            <Input
+              value={value2}
+              onInput={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setValue2(e.target.value?.trim())
+              }
+            />
+          </FormItem>
+          <FormItem>
+            <RightContainer>
+              <Button onClick={() => start(value2, appid2)}>Run</Button>
+            </RightContainer>
           </FormItem>
         </FormContainer>
       </FormGrid>
+      <FormItem>
+        {attestAtationTx && (
+          <>
+            <Label>AttestationTx:</Label>
+            <a href={"https://explorer-holesky.morphl2.io/tx/" + attestAtationTx} target="_blank" rel="noopener noreferrer">
+              {attestAtationTx}
+            </a>
+          </>
+        )}
+        {result && (
+          <>
+            <Label>Result:</Label>
+            <JSONPretty
+              themeClassName="custom-json-pretty"
+              id="json-pretty"
+              data={result}
+            ></JSONPretty>
+          </>
+        )}
+      </FormItem>
     </main>
   );
 }
