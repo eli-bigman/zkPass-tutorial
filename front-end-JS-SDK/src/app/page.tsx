@@ -160,7 +160,7 @@ export default function Home() {
 
   return (
     <main className="p-4">
-      <h1 className="text-white text-center mb-8">zkPass Transgate Sportify validator</h1>
+      <h1 className="text-white text-center mb-8">zkPass Transgate Sportybet validator</h1>
       <div className="grid gap-9 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 max-w-4xl mx-auto">
         <ValidationCard schemaId="b7724d4fce7d480ca9658730fdc4b8cf" validationName="Has Sportybet Account " appid={appid} />
         <ValidationCard schemaId="b7724d4fce7d480ca9658730fdc4b8cf" validationName="Sportybet account balance is more than 1 GHs" appid={appid} />
